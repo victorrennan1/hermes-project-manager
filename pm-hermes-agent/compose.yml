@@ -1,0 +1,13 @@
+services:
+  agent:
+    build: .
+    volumes:
+      # `.host`, não o caminho que o agente lê: um bind traz a ownership desta
+      # máquina; a imagem copia o arquivo para o lugar certo, como root.
+      - ./plow-credentials:/var/lib/plow/credentials.host:ro
+      # Home do agente, preservada entre `up`/`down` (sessões e estado).
+      - agent-home:/var/lib/hermes
+    stop_grace_period: 35s
+
+volumes:
+  agent-home:
