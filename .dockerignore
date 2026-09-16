@@ -1,0 +1,6 @@
+plow-credentials
+plow-credentials.*
+.env
+__pycache__/
+*.pyc
+.git

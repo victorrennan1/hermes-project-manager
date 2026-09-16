@@ -1,74 +1,68 @@
-# PM Second Brain — agente de PM de consultoria (Plow / Hermes)
+# PM Agent — persistent project-management agent (Plow / Hermes)
 
-Agente de Project Manager que cascateia Escopo → Objetivos (OKR/SMART) →
-Resultados-Chave → Planos de Ação (5W2H), distingue demandas primárias de
-emergentes, e mantém isso como estado vivo e rastreável — conversando por
-iMessage via Plow Chat.
+A project-management agent that holds context across every organization and
+project you're running — cascades each objective into Key Results you
+confirm and Action Plans in 5W2H, tracks who's responsible for what, and
+proactively tells you what needs attention. Talks over iMessage via Plow
+Chat.
 
-Construído sobre a imagem oficial [`plow-hermes-agent`](https://github.com/plow-pbc/plow-hermes-agent)
-(Hermes Agent, da Nous Research, + a integração Plow). Este repo só adiciona
-a persona (`persona.md`) e a skill `pm-memory`.
+**No Mac required.** Runs in Docker on any Linux host — a VPS, WSL2 on
+Windows, or plain Linux.
 
-## Pré-requisitos
+Built on the official [`plow-hermes-agent`](https://github.com/plow-pbc/plow-hermes-agent)
+image (Hermes Agent, Nous Research, + the Plow integration). This repo adds
+only the persona and four skills: `pm-setup`, `pm-entities`,
+`pm-action-plans`, `pm-crons`.
 
-Git, Docker, Docker Compose v2. Nenhum Mac necessário — roda em qualquer
-Linux (VPS inclusive), via Plow Chat / iMessage.
+## Prerequisites
 
-## Instalação
+Git, Docker, Docker Compose v2. An iPhone, to receive the activation code and
+talk to the agent.
 
-Cada pessoa que for rodar este agente usa a **própria** conta Plow (a
-credencial é presa a uma linha/telefone):
+## Where to run it
+
+A VPS, not your laptop. The daily/weekly routines and the ability to respond
+whenever you text are the point — an agent that only runs while your laptop
+is open loses both the moment you close the lid.
+
+## Installation
+
+Each person running this uses their **own** Plow account — the credential is
+tied to one phone line, so it can't be shared:
 
 ```sh
 git clone https://github.com/plow-pbc/plow-agents.git
 export PATH="$PWD/plow-agents/bin:$PATH"
 
-git clone <URL-DESTE-REPO>
-cd <pasta-deste-repo>
+git clone https://github.com/victorrennan1/hermes-project-manager.git
+cd hermes-project-manager
 
-plow-agents login          # texta o código de ativação impresso pro seu telefone
-plow-agents lines          # lista as linhas disponíveis, escolha uma "free"
-plow-agents mint <linha>   # escreve ./plow-credentials
+plow-agents login --new-line   # texts an activation code to YOUR phone;
+                                # --new-line avoids landing on a line another
+                                # agent already occupies
+plow-agents lines               # note the line's phone number
+plow-agents mint <the-new-line> # writes ./plow-credentials
 ```
-
-**Passo extra pra contar no leaderboard deste agente** (veja "Agent Index"
-abaixo pelo porquê): adicione ao `./plow-credentials` recém-criado:
-
-```sh
-echo "AGENT_ID=<id-registrado-abaixo>" >> plow-credentials
-```
-
-Depois:
 
 ```sh
 docker compose up --build -d
-docker compose logs -f agent   # espere aparecer "plow-init: configured ... as cht_"
+docker compose logs -f agent    # wait for "plow-init: configured ... as cht_"
 ```
 
-Quando aparecer, texte para o número da linha escolhida — o agente responde.
+Text the line's phone number once it's up. Say hi — onboarding takes it from
+there.
 
-Pra encerrar e limpar a memória local:
+To tear down and free the line:
 
 ```sh
 plow-agents revoke
 docker compose down -v
 ```
 
-## Primeira mensagem
-
-```
-novo projeto: Estruturação Financeira
-escopo: aumentar a governança e transparência das finanças
-objetivo: fechamento contábil com 95% de acurácia
-```
-
-O agente deve criar o projeto, cascatear em resultado-chave + plano de ação
-5W2H, e confirmar em poucas linhas.
-
 ## Base image
 
-Este Dockerfile fixa uma tag imutável (`base-<sha>`) da imagem oficial. Pra
-conferir se existe uma mais recente antes da build final:
+The Dockerfile pins an immutable tag. To check for a newer one before a final
+build:
 
 ```sh
 token=$(curl -fsSL 'https://public.ecr.aws/token/?service=public.ecr.aws&scope=repository:e1h7x4a2/plow-cloud-agents:pull' \
@@ -77,51 +71,62 @@ curl -fsSL -H "Authorization: Bearer $token" \
   https://public.ecr.aws/v2/e1h7x4a2/plow-cloud-agents/tags/list
 ```
 
-Se `docker compose up` falhar puxando a imagem base com erro 403: `docker
-logout public.ecr.aws` e tente de novo (credencial de pull anônima expirada).
+If `docker compose up` fails pulling the base image with a 403:
+`docker logout public.ecr.aws`, then retry.
 
-## Agent Index (leaderboard do hackathon)
+## Agent Index (hackathon leaderboard)
 
-O reporter de uso já vem embutido na imagem (roda a cada 5 min, só manda
-contagem agregada por dia/modelo — nada de conteúdo de conversa). Ele só
-sabe de quem é o uso através de `AGENT_ID`, presente no ambiente do
-container.
+The usage reporter ships baked into the image (reports every 5 min — day x
+model token counts only, never conversation content) and reads its
+`AGENT_ID` from `compose.yml`'s default, so every install's usage counts
+toward the same agent.
 
-**Registro (fazer uma única vez, como dono deste agente):**
+Registering the page (once, as the agent's owner):
 
 ```sh
 curl -O https://raw.githubusercontent.com/plow-pbc/agent-index-client/main/standalone/agent_index_client.py
 set -a; . ./plow-credentials; set +a
-python3 agent_index_client.py --register --agent "<escolha-um-id>" --name "PM Second Brain" --blurb "Second brain de PM para consultoria: cascateia OKR em planos de ação 5W2H via chat"
+python3 agent_index_client.py --register --agent pm-second-brain \
+  --name "PM Agent" \
+  --blurb "Persistent project-management agent: cascades objectives into Key Results and 5W2H action plans, over chat."
 ```
 
-Anote o `<escolha-um-id>` — é o `AGENT_ID` que você (e todo mundo que
-instalar este repo) coloca no próprio `plow-credentials`, conforme o passo
-de instalação acima. Assim o uso de terceiros conta pro mesmo agente no
-[leaderboard](https://aiworthusing.com/agent-index).
+After that, in the agent's page on `aiworthusing.com/agent-index`, click
+**"Get my agent verified."**
 
-**Depois de registrar, entre na página do seu agente no Agent Index e clique
-em "Get my agent verified".** Sem isso ele não conta pro ranking, mesmo
-reportando uso normalmente.
-
-**Requisitos pra rankear**, segundo o próprio Agent Index: repositório MIT
-licensed (feito — `LICENSE`), agente verificado (passo acima), e reportando
-uso através do client oficial (feito — `vendor/client.pin` +
-`image/s6-overlay/`).
-
-## Roadmap (fora do escopo desta v1)
-
-- Quality gate: validar entregas submetidas contra um template
-- Cron jobs: status diário, atrasos, radar dos próximos dias
-- Ingestão de transcrições de reunião
-- Envio automático de lembretes por e-mail
-
-## Estrutura
+## Repository layout
 
 ```
-persona.md                    identidade do agente
-skills/pm-memory/SKILL.md      protocolo: quando e como cascatear/atualizar
-skills/pm-memory/scripts/      CLI que lê/escreve o estado (JSON por projeto)
-vendor/client.pin              pin do reporter de uso (Agent Index)
-image/s6-overlay/              serviço do reporter (copiado do agente de referência)
+persona.md                          identity, guardrails, tone
+skills/pm-setup/                    onboarding (user.md) + project discovery
+skills/pm-entities/                 organizations, projects, people, key results
+skills/pm-action-plans/             the 5W2H action-plan base
+skills/pm-crons/                    owner-configurable scheduled routines
+vendor/client.pin                   pin for the Agent Index usage reporter
+image/s6-overlay/                   the reporter's service definition (copied from the reference agent)
 ```
+
+## Data model
+
+```
+organizations/<org_id>.md
+projects/<project_id>.md      objective + Key Results live in the body
+people/<person_id>.md
+action_plans.md               the single base -- one line + 5W2H detail per plan
+user.md                       identity from onboarding, immutable after setup
+projects.md                   generated portfolio index -- never hand-edited
+```
+
+Every entity has a stable, type-prefixed id (`org_`, `project_`, `person_`,
+`kr_`, `action_`) and explicit parent references, so an Action Plan always
+knows which organization, project, and Key Result it serves. A guardrail
+refuses to let a person responsible for one organization's work end up
+responsible for another's, unless they're marked `internal`.
+
+## Roadmap (not in this version)
+
+- Meeting-transcript processing (propose changes from a transcript, owner
+  approves, then apply)
+- Outbound email chasing (blocked upstream on a Plow mailbox provisioning
+  issue for this line; the code path is otherwise ready)
+- A quality gate validating submitted deliverables against a template

@@ -1,11 +1,16 @@
 services:
   agent:
     build: .
+    # Installer never has to create a .env: a fixed AGENT_ID ships here so
+    # every install's usage reports under this same agent on the leaderboard;
+    # override only if you are running your own fork under your own id.
+    environment:
+      AGENT_ID: ${AGENT_ID:-pm-second-brain}
     volumes:
-      # `.host`, não o caminho que o agente lê: um bind traz a ownership desta
-      # máquina; a imagem copia o arquivo para o lugar certo, como root.
+      # `.host`, not the path the agent reads: a bind carries this machine's
+      # ownership in, and the image copies the file into place as root itself.
       - ./plow-credentials:/var/lib/plow/credentials.host:ro
-      # Home do agente, preservada entre `up`/`down` (sessões e estado).
+      # The agent's home, kept across `up`/`down` for its sessions and state.
       - agent-home:/var/lib/hermes
     stop_grace_period: 35s
 
