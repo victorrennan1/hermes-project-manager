@@ -1,0 +1,13 @@
+# Working files — never commit these.
+# staging/videos/ holds other people's reels: working copies for transcription,
+# to be deleted after each batch. See the fair-use notes in the README.
+staging/
+notes/
+ledger.json
+dashboard.html
+
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env

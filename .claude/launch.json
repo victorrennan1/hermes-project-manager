@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "sprint-consult-diagnostico",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8935", "--directory", "C:\\Users\\Cliente\\Sprint Consult"],
+      "port": 8935
+    },
+    {
+      "name": "teleprompter",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5173", "--directory", "C:\\Users\\Cliente\\OneDrive\\Documentos\\AA Rennan\\Teleprompter"],
+      "port": 5173
+    }
+  ]
+}
