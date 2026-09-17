@@ -1,7 +1,7 @@
 # PM Agent -- persistent project-management agent, built on the official
 # Plow base image. Pin by immutable sha; check for a newer tag with the
 # command in README.md > "Base image" before the final build.
-FROM public.ecr.aws/e1h7x4a2/plow-cloud-agents:base-8088c7f77f5ffd536a80c9dc302ebdb39e6be1d2@sha256:26d69e81faebc584a4d819f68f756e2d4917938409b0f8ff98488c93bdd34b78
+FROM public.ecr.aws/e1h7x4a2/plow-cloud-agents:base-51f83158a70a383f03a4d03dbd8b6ea102cf0361@sha256:253d7ed3409effa7fa59113d93b4b79bb731d8264cdaf4cd60294924d0110a2e
 
 # Identity: plow-init recomposes SOUL.md on every boot from the base persona
 # plus this file. Never write /var/lib/hermes/SOUL.md directly -- overwritten at boot.
