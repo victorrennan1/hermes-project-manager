@@ -76,7 +76,7 @@ If `docker compose up` fails pulling the base image with a 403:
 
 ## Agent Index (hackathon leaderboard)
 
-The usage reporter ships baked into the image (reports every 5 min — day x
+The usage reporter ships in the Plow base image (reports every 5 min — day x
 model token counts only, never conversation content) and reads its
 `AGENT_ID` from `compose.yml`'s default, so every install's usage counts
 toward the same agent.
@@ -102,8 +102,6 @@ skills/pm-setup/                    onboarding (user.md) + project discovery
 skills/pm-entities/                 organizations, projects, people, key results
 skills/pm-action-plans/             the 5W2H action-plan base
 skills/pm-crons/                    owner-configurable scheduled routines
-vendor/client.pin                   pin for the Agent Index usage reporter
-image/s6-overlay/                   the reporter's service definition (copied from the reference agent)
 ```
 
 ## Data model
